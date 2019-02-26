@@ -66,6 +66,14 @@ describe('Shopping list CRUD tests', () => {
           expect(actual).to.eql(testItems);
         });
     });
+
+    it('getItemById() should resolve an item by id from \'shopping_list\'', () => {
+      const id = 3;
+      return ShoppingListService.getItemById(db, id)
+        .then(actual => {
+          expect(actual).to.eql(testItems[id-1]);
+        });
+    });
   });
 
   it('insertItem() inserts an item and resolves the item', () => {
