@@ -55,24 +55,57 @@ describe('Shopping list CRUD tests', () => {
 
   context(`Given 'shopping_list' has data`, () => {
     beforeEach(() => {
-      return db
-        .into('shopping_list')
-        .insert(testItems);
+      return db.into('shopping_list').insert(testItems);
     });
 
     it('getAllItems() resolves all items from the table', () => {
-      return ShoppingListService.getAllItems(db)
-        .then(actual => {
-          expect(actual).to.eql(testItems);
+      return ShoppingListService.getAllItems(db).then(actual => {
+        expect(actual).to.eql(testItems);
+      });
+    });
+
+    it("getItemById() should resolve an item by id from 'shopping_list'", () => {
+      const id = 3;
+      return ShoppingListService.getItemById(db, id).then(actual => {
+        expect(actual).to.eql(testItems[id - 1]);
+      });
+    });
+
+    it(`deleteItem() removes an item by id from the shopping_list table`, () => {
+      const itemId = 3;
+      return ShoppingListService.deleteItem(db, itemId)
+        .then(() => ShoppingListService.getAllItems(db))
+        .then(allItems => {
+          const expected = testItems.filter(item => item.id !== itemId);
+          expect(allItems).to.eql(expected);
         });
     });
 
-    it('getItemById() should resolve an item by id from \'shopping_list\'', () => {
-      const id = 3;
-      return ShoppingListService.getItemById(db, id)
-        .then(actual => {
-          expect(actual).to.eql(testItems[id-1]);
+    it(`updateItem() updates an item from the shopping_list table`, () => {
+      const idOfItemToUpdate = 3;
+      const newItemData = {
+        name: 'bag o chips',
+        price: '4.50',
+        category: 'Snack',
+        date_added: new Date('2019-02-26T20:06:28.140Z'),
+        checked: false
+      };
+      return ShoppingListService.updateItem(db, idOfItemToUpdate, newItemData)
+        .then(() => ShoppingListService.getItemById(db, idOfItemToUpdate))
+        .then(item => {
+          expect(item).to.eql({
+            id: idOfItemToUpdate,
+            ...newItemData
+          });
         });
+    });
+  });
+
+  context(`Given shopping_list has no data`, () => {
+    it(`getAllItems() resolves an empty array`, () => {
+      return ShoppingListService.getAllItems(db).then(actual => {
+        expect(actual).to.eql([]);
+      });
     });
   });
 
@@ -84,16 +117,15 @@ describe('Shopping list CRUD tests', () => {
       checked: false,
       category: 'Snack'
     };
-    return ShoppingListService.insertItem(db, newItem)
-      .then(actual => {
-        expect(actual).to.eql({
-          id: 1,
-          name: newItem.name,
-          price: newItem.price,
-          date_added: newItem.date_added,
-          checked: newItem.checked,
-          category: newItem.category
-        });
+    return ShoppingListService.insertItem(db, newItem).then(actual => {
+      expect(actual).to.eql({
+        id: 1,
+        name: newItem.name,
+        price: newItem.price,
+        date_added: newItem.date_added,
+        checked: newItem.checked,
+        category: newItem.category
       });
+    });
   });
 });
