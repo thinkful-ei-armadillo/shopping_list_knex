@@ -60,7 +60,7 @@ function getTotalCostEachCategory() {
     });
 }
 
-getTotalCostEachCategory();
+// getTotalCostEachCategory();
 
 /* .select('video_name', 'region')
     .count('date_viewed AS views')
